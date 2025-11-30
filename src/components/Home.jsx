@@ -45,10 +45,19 @@ function Home() {
       alert('Please upload a BibTeX file or select from database');
       return;
     }
-    console.log('Generating HTML with format:', selectedFormat);
-    console.log('Using:', uploadedFile ? 'Uploaded file' : 'Selected bibs', selectedBibs);
-    navigate('/preview');
-    // Backend integration will go here later
+
+    console.log('=== GENERATING HTML ===');
+    console.log('Format:', selectedFormat);
+    console.log('Selected bibs:', selectedBibs);
+    console.log('=======================');
+
+    // Navigate to preview page with data
+    navigate('/preview', {
+      state: {
+        bibs: selectedBibs,
+        format: selectedFormat
+      }
+    });
   };
 
   const handleDeleteBib = (bibId) => {

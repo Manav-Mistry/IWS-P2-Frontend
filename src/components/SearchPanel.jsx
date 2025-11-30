@@ -9,12 +9,69 @@ function SearchPanel({ isOpen, onClose, onUploadSelected }) {
 
     // Dummy data for now (later this will come from backend)
     const dummyBibs = [
-        { id: 1, title: 'Introduction to Machine Learning', author: 'John Doe', year: 2020 },
-        { id: 2, title: 'Deep Learning Fundamentals', author: 'Jane Smith', year: 2021 },
-        { id: 3, title: 'Neural Networks and AI', author: 'Mike Johnson', year: 2019 },
-        { id: 4, title: 'Data Science Basics', author: 'Sarah Williams', year: 2022 },
-        { id: 5, title: 'Machine Learning Algorithms', author: 'David Brown', year: 2023 },
-        { id: 6, title: 'Artificial Intelligence Ethics', author: 'Emily Davis', year: 2021 },
+        {
+            id: 1,
+            type: 'article',
+            citationKey: 'doe2020ml',
+            author: 'John Doe',
+            title: 'Introduction to Machine Learning',
+            journal: 'AI Journal',
+            year: 2020,
+            volume: 15,
+            pages: '123-145'
+        },
+        {
+            id: 2,
+            type: 'book',
+            citationKey: 'smith2021deep',
+            author: 'Jane Smith',
+            title: 'Deep Learning Fundamentals',
+            publisher: 'Tech Books Publishing',
+            year: 2021,
+            address: 'New York'
+        },
+        {
+            id: 3,
+            type: 'article',
+            citationKey: 'johnson2019neural',
+            author: 'Mike Johnson',
+            title: 'Neural Networks and AI',
+            journal: 'Computer Science Review',
+            year: 2019,
+            volume: 8,
+            pages: '45-67'
+        },
+        {
+            id: 4,
+            type: 'book',
+            citationKey: 'williams2022data',
+            author: 'Sarah Williams',
+            title: 'Data Science Basics',
+            publisher: 'Academic Press',
+            year: 2022,
+            address: 'London'
+        },
+        {
+            id: 5,
+            type: 'inproceedings',
+            citationKey: 'brown2023ml',
+            author: 'David Brown',
+            title: 'Machine Learning Algorithms',
+            booktitle: 'International Conference on AI',
+            year: 2023,
+            pages: '234-256'
+        },
+        {
+            id: 6,
+            type: 'article',
+            citationKey: 'davis2021ethics',
+            author: 'Emily Davis',
+            title: 'Artificial Intelligence Ethics',
+            journal: 'Ethics in Technology',
+            year: 2021,
+            volume: 12,
+            pages: '89-102'
+        }
     ];
 
     // Live search - runs whenever searchQuery changes
@@ -48,7 +105,15 @@ function SearchPanel({ isOpen, onClose, onUploadSelected }) {
 
     const handleUpload = () => {
         const selected = searchResults.filter(bib => selectedBibs.includes(bib.id));
-        console.log('Uploading selected bibs:', selected);
+
+        console.log('=== SELECTED BIBTEX ENTRIES ===');
+        console.log('Count:', selected.length);
+        selected.forEach((bib, index) => {
+            console.log(`\n[${index + 1}] ${bib.type.toUpperCase()}: ${bib.citationKey}`);
+            console.log('Full data:', bib);
+        });
+        console.log('================================');
+
         onUploadSelected(selected);
 
         // Reset and close
