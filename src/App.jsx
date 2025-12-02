@@ -4,6 +4,8 @@ import Register from './components/auth/Register';
 import Login from './components/auth/Login';
 import Home from './components/Home';
 import Preview from './components/Preview';
+import ProtectedRoute from './components/ProtectedRoute';
+import MyBibliographies from './components/MyBibliographies';
 import './App.css';
 
 function App() {
@@ -12,11 +14,36 @@ function App() {
   return (
     <div className="App">
       <Routes>
-        <Route path="/login" element={<Login />}></Route>
-        <Route path="/register" element={<Register />}></Route>
-        <Route path="/" element={<Login />}></Route>
-        <Route path="/home" element={<Home />}></Route>
-        <Route path="/preview" element={<Preview />} /> 
+        <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        {/* Protected Routes */}
+        <Route
+          path="/home"
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/preview"
+          element={
+            <ProtectedRoute>
+              <Preview />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/my-bibliographies"
+          element={
+            <ProtectedRoute>
+              <MyBibliographies />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </div>
   );

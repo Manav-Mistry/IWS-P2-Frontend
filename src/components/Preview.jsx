@@ -2,7 +2,13 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import Navbar from './Navbar';
 import './Preview.css';
-import { formatBibliographyMLA } from '../utils/citationFormatter';
+import {
+    formatBibliographyMLA,
+    formatBibliographyAPA,
+    formatBibliographyChicago,
+    formatBibliographyHarvard,
+    formatBibliographyVancouver
+} from '../utils/citationFormatter';
 
 function Preview() {
     const location = useLocation();
@@ -18,7 +24,25 @@ function Preview() {
     console.log('Bibs received:', bibs);
 
     // Format the bibliography
-    const formattedCitations = formatBibliographyMLA(bibs);
+    // Format the bibliography based on selected format
+    const getFormattedCitations = () => {
+        switch (format) {
+            case 'MLA':
+                return formatBibliographyMLA(bibs);
+            case 'APA':
+                return formatBibliographyAPA(bibs);
+            case 'Chicago':
+                return formatBibliographyChicago(bibs);
+            case 'Harvard':
+                return formatBibliographyHarvard(bibs);
+            case 'Vancouver':
+                return formatBibliographyVancouver(bibs);
+            default:
+                return formatBibliographyMLA(bibs);
+        }
+    };
+
+    const formattedCitations = getFormattedCitations();
     console.log('\n=== FORMATTED CITATIONS (MLA) ===');
     formattedCitations.forEach((citation, index) => {
         console.log(`[${index + 1}] ${citation}`);

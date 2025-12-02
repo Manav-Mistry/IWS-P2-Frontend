@@ -1,4 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
+import { auth, db } from '../firebase';
+
 import Button from './other/Button';
 import './SearchPanel.css';
 
@@ -8,71 +11,51 @@ function SearchPanel({ isOpen, onClose, onUploadSelected }) {
     const [selectedBibs, setSelectedBibs] = useState([]);
 
     // Dummy data for now (later this will come from backend)
-    const dummyBibs = [
-        {
-            id: 1,
-            type: 'article',
-            citationKey: 'doe2020ml',
-            author: 'John Doe',
-            title: 'Introduction to Machine Learning',
-            journal: 'AI Journal',
-            year: 2020,
-            volume: 15,
-            pages: '123-145'
-        },
-        {
-            id: 2,
-            type: 'book',
-            citationKey: 'smith2021deep',
-            author: 'Jane Smith',
-            title: 'Deep Learning Fundamentals',
-            publisher: 'Tech Books Publishing',
-            year: 2021,
-            address: 'New York'
-        },
-        {
-            id: 3,
-            type: 'article',
-            citationKey: 'johnson2019neural',
-            author: 'Mike Johnson',
-            title: 'Neural Networks and AI',
-            journal: 'Computer Science Review',
-            year: 2019,
-            volume: 8,
-            pages: '45-67'
-        },
-        {
-            id: 4,
-            type: 'book',
-            citationKey: 'williams2022data',
-            author: 'Sarah Williams',
-            title: 'Data Science Basics',
-            publisher: 'Academic Press',
-            year: 2022,
-            address: 'London'
-        },
-        {
-            id: 5,
-            type: 'inproceedings',
-            citationKey: 'brown2023ml',
-            author: 'David Brown',
-            title: 'Machine Learning Algorithms',
-            booktitle: 'International Conference on AI',
-            year: 2023,
-            pages: '234-256'
-        },
-        {
-            id: 6,
-            type: 'article',
-            citationKey: 'davis2021ethics',
-            author: 'Emily Davis',
-            title: 'Artificial Intelligence Ethics',
-            journal: 'Ethics in Technology',
-            year: 2021,
-            volume: 12,
-            pages: '89-102'
+    const [allBibs, setAllBibs] = useState([]); // Store all user's bibliographies
+    const [loading, setLoading] = useState(false);
+
+    // Load bibliographies from Firestore when panel opens
+    useEffect(() => {
+        if (isOpen) {
+            loadBibliographies();
         }
-    ];
+    }, [isOpen]);
+
+    const loadBibliographies = async () => {
+        const user = auth.currentUser;
+
+        if (!user) {
+            console.log(' No user logged in');
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            console.log(' Loading bibliographies from Firestore...');
+
+            const querySnapshot = await getDocs(
+                collection(db, `users/${user.uid}/bibliographies`)
+            );
+
+            const bibs = [];
+            querySnapshot.forEach((doc) => {
+                bibs.push({
+                    id: doc.id, // Use Firestore document ID
+                    firestoreId: doc.id,
+                    ...doc.data()
+                });
+            });
+
+            setAllBibs(bibs);
+            console.log(` Loaded ${bibs.length} bibliographies`);
+
+        } catch (error) {
+            console.error(' Error loading bibliographies:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     // Live search - runs whenever searchQuery changes
     useEffect(() => {
@@ -82,16 +65,16 @@ function SearchPanel({ isOpen, onClose, onUploadSelected }) {
                 return;
             }
 
-            const results = dummyBibs.filter(bib =>
-                bib.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                bib.author.toLowerCase().includes(searchQuery.toLowerCase())
+            const results = allBibs.filter(bib =>
+                bib.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                bib.author?.toLowerCase().includes(searchQuery.toLowerCase())
             );
 
             setSearchResults(results);
         }, 300);
 
         return () => clearTimeout(timer);
-    }, [searchQuery]);
+    }, [searchQuery, allBibs]); // Add allBibs to dependencies
 
     const handleCheckboxChange = (bibId) => {
         setSelectedBibs(prev => {
@@ -192,10 +175,18 @@ function SearchPanel({ isOpen, onClose, onUploadSelected }) {
                         </div>
                     )}
 
-                    {/* Empty state - show when no search query */}
-                    {!searchQuery && (
+                    {!searchQuery && !loading && (
                         <div className="empty-state">
                             <p>Start typing to search your BibTeX database...</p>
+                            <p style={{ fontSize: '12px', color: '#999', marginTop: '10px' }}>
+                                {allBibs.length} entries in your library
+                            </p>
+                        </div>
+                    )}
+
+                    {loading && (
+                        <div className="empty-state">
+                            <p>Loading your bibliographies...</p>
                         </div>
                     )}
 

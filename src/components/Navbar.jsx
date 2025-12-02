@@ -1,13 +1,20 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebase';
 import './Navbar.css';
 
 function Navbar({ isLoggedIn = false }) {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    // Later: Clear auth tokens, user data, etc.
-    console.log('Logging out...');
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      console.log('✅ Logged out successfully');
+      navigate('/login');
+    } catch (error) {
+      console.error('❌ Logout error:', error);
+      alert('Failed to logout. Please try again.');
+    }
   };
 
   return (
@@ -18,6 +25,11 @@ function Navbar({ isLoggedIn = false }) {
         </Link>
 
         <div className="navbar-right">
+          {isLoggedIn && (
+            <Link to="/my-bibliographies" className="navbar-link">
+              My Library
+            </Link>
+          )}
           {isLoggedIn ? (
             <button className="navbar-btn" onClick={handleLogout}>
               Logout
